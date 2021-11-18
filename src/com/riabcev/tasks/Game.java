@@ -3,13 +3,7 @@ package com.riabcev.tasks;
 import java.util.Scanner;
 
 public class Game {
-
-    private final char[] field = {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '};
-
-    //main methods
-
-    //press f for play with friend)
-    protected boolean chooseGameMod(Scanner scanner) {
+    protected static boolean chooseGameMod(Scanner scanner) {
         System.out.println("Hello player, enter f if you want to play TicTacToe with other human\n" +
                 "or enter any other symbol if you want to play TicTacToe with computer");
         if ("f".equals(scanner.next())) {
@@ -21,39 +15,7 @@ public class Game {
         }
     }
 
-    protected void playGameWithFriend(Scanner scanner) {
-        System.out.println("Starting the game with friend:");
-        printGameRules();
-        boolean isXTurn = false;
-        boolean isOver;
-        do {
-            isXTurn = !isXTurn;
-            if (isFieldNotEmpty()) {
-                drawField();
-            }
-            int cellNumber = doHumanTurn(isXTurn, scanner);
-            isOver = isEndGame(cellNumber);
-        } while (!isOver);
-        drawField();
-        if (!isFieldOccupied()) {
-            System.out.println("The winner is " + findOutWhoseTurn(isXTurn));
-            System.out.println("Congrats!!!");
-        } else {
-            System.out.println("It's a draw!");
-        }
-    }
-
-    protected void playGameWithComputer(Scanner scanner) {
-        System.out.println("Starting of the game with computer:");
-        if (this.determinateWhoPlaysCrosses()) {
-            toPlayAgainstZeroes(scanner);
-        } else {
-            toPlayAgainstCrosses(scanner);
-        }
-    }
-
-    //common methods
-    private void printGameRules() {
+    protected void printGameRules() {
         System.out.println("Rules of the game:\n" +
                 "Tic-tac-toe is played on a three-by-three grid by two players,\n" +
                 "who alternately place the marks X and O in one of the nine spaces in the field.\n" +
@@ -67,95 +29,7 @@ public class Game {
         System.out.println("|  7  |  8  |  9  |");
     }
 
-    private void drawField() {
-        System.out.println("| " + field[0] + " | " + field[1] + " | " + field[2] + " |");
-        System.out.println("| " + field[3] + " | " + field[4] + " | " + field[5] + " |");
-        System.out.println("| " + field[6] + " | " + field[7] + " | " + field[8] + " |");
-    }
-
-    private boolean isFieldOccupied() {
-        for (char cell : field) {
-            if (' ' == cell) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private boolean isFieldNotEmpty() {
-        for (char cell : field) {
-            if (' ' != cell) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private boolean isEndGame(int cellNumber) {
-        return isFieldOccupied() || isAnyPlayerWin(cellNumber);
-    }
-
-    private boolean isAnyPlayerWin(int cellNumber) {
-        if (cellNumber % 2 == 0) {
-            switch (cellNumber) {
-                case 2:
-                    return checkTheFirstRow() || checkTheSecondColumn();
-                case 4:
-                    return checkTheSecondRow() || checkTheFirstColumn();
-                case 6:
-                    return checkTheSecondRow() || checkTheThirdColumn();
-                default: //case 8:
-                    return checkTheThirdRow() || checkTheSecondColumn();
-            }
-        } else if (cellNumber == 5) {
-            return checkTheSecondRow() || checkTheSecondColumn() || checkBackslash() || checkSlash();
-        } else {
-            switch (cellNumber) {
-                case 1:
-                    return checkTheFirstRow() || checkTheFirstColumn() || checkBackslash();
-                case 3:
-                    return checkTheFirstRow() || checkTheThirdColumn() || checkSlash();
-                case 7:
-                    return checkTheThirdRow() || checkTheFirstColumn() || checkSlash();
-                default:  //case 9:
-                    return checkTheThirdRow() || checkTheThirdColumn() || checkBackslash();
-            }
-        }
-    }
-
-    private boolean checkTheFirstRow() {
-        return (field[1] == field[0] && field[1] == field[2]);
-    }
-
-    private boolean checkTheSecondRow() {
-        return (field[4] == field[5] && field[4] == field[3]);
-    }
-
-    private boolean checkTheThirdRow() {
-        return (field[7] == field[6] && field[7] == field[8]);
-    }
-
-    private boolean checkTheFirstColumn() {
-        return (field[3] == field[0] && field[3] == field[6]);
-    }
-
-    private boolean checkTheSecondColumn() {
-        return (field[4] == field[1] && field[4] == field[7]);
-    }
-
-    private boolean checkTheThirdColumn() {
-        return (field[5] == field[2] && field[5] == field[8]);
-    }
-
-    private boolean checkBackslash() {
-        return (field[4] == field[0] && field[4] == field[8]);
-    }
-
-    private boolean checkSlash() {
-        return (field[4] == field[2] && field[4] == field[6]);
-    }
-
-    private int enterNumber(Scanner scanner) {
+    protected int enterNumber(Scanner scanner, char[] field) {
         while (true) {
             try {
                 int newNumberForTurn = Integer.parseInt(scanner.next());
@@ -169,122 +43,99 @@ public class Game {
         }
     }
 
-    //methods for Game with Human
-    private char findOutWhoseTurn(boolean mark) {
-        return mark ? 'X' : 'O';
-    }
-
-    private int doHumanTurn(boolean isXTurn, Scanner scanner) {
-        System.out.println("Turn of " + findOutWhoseTurn(isXTurn) + "\n" +
-                "Enter number:");
-        int cellNumber = enterNumber(scanner);
-        field[cellNumber-1] = findOutWhoseTurn(isXTurn);
-        return cellNumber;
-    }
-
-    //methods for Game with Computer
-    private int doHumanTurn(char turn, Scanner scanner) {
+    protected int doHumanTurn(char turn, Scanner scanner, char[] field) {
         System.out.println("Turn of " + turn + "\n" +
                 "Enter number:");
-        int cellNumber = enterNumber(scanner);
+        int cellNumber = enterNumber(scanner, field);
         field[cellNumber-1] = turn;
         return cellNumber;
     }
 
-
-    private boolean determinateWhoPlaysCrosses() {
-        double randomForPerson = (int) (Math.random() * 100);
-        double randomForComputer = (int) (Math.random() * 100);
-        return randomForPerson > randomForComputer;
+    protected void drawField(char[] field) {
+        System.out.println("| " + field[0] + " | " + field[1] + " | " + field[2] + " |");
+        System.out.println("| " + field[3] + " | " + field[4] + " | " + field[5] + " |");
+        System.out.println("| " + field[6] + " | " + field[7] + " | " + field[8] + " |");
     }
 
-    private void toPlayAgainstZeroes(Scanner scanner) {
-        printGameRules();
-        System.out.println("You play with Crosses, computer play with Zeros");
-        boolean isOver;
-        char currentTurn;
-        do {
-            if (isFieldNotEmpty()) {
-                drawField();
+    protected boolean isFieldNotEmpty(char[] field) {
+        for (char cell : field) {
+            if (' ' != cell) {
+                return true;
             }
-            //turn of Player (X)
-            currentTurn = 'X';
-            int cellNumber = doHumanTurn(currentTurn, scanner);
-            isOver = isEndGame(cellNumber);
-            if (isOver) {
-                break;
+        }
+        return false;
+    }
+
+    protected boolean isEndGame(int cellNumber, char[] field) {
+        return isFieldOccupied(field) || isAnyPlayerWin(cellNumber, field);
+    }
+
+    protected boolean isAnyPlayerWin(int cellNumber, char[] field) {
+        if (cellNumber % 2 == 0) {
+            switch (cellNumber) {
+                case 2:
+                    return checkTheFirstRow(field) || checkTheSecondColumn(field);
+                case 4:
+                    return checkTheSecondRow(field) || checkTheFirstColumn(field);
+                case 6:
+                    return checkTheSecondRow(field) || checkTheThirdColumn(field);
+                default: //case 8:
+                    return checkTheThirdRow(field) || checkTheSecondColumn(field);
             }
-            //Turn of Computer (O)
-            currentTurn = 'O';
-            cellNumber = doComputerTurn(currentTurn);
-            isOver = isEndGame(cellNumber);
-        } while (!isOver);
-        drawField();
-        if (!isFieldOccupied()) {
-            System.out.println("The winner is " + currentTurn);
-            if (currentTurn == 'X') {
-                System.out.println("Congrats!!!");
-            } else {
-                System.out.println("Don't worry, you can win next time!");
-            }
+        } else if (cellNumber == 5) {
+            return checkTheSecondRow(field) || checkTheSecondColumn(field) || checkBackslash(field) || checkSlash(field);
         } else {
-            System.out.println("It's a draw!");
-        }
-    }
-
-    private void toPlayAgainstCrosses(Scanner scanner) {
-        printGameRules();
-        System.out.println("You play with Zeros, computer play with Crosses");
-        boolean isOver;
-        char currentTurn;
-        do {
-            //Turn of Computer (X)
-            currentTurn = 'X';
-            int cellNumber = doComputerTurn(currentTurn);
-            isOver = isEndGame(cellNumber);
-            if (isOver) {
-                break;
+            switch (cellNumber) {
+                case 1:
+                    return checkTheFirstRow(field) || checkTheFirstColumn(field) || checkBackslash(field);
+                case 3:
+                    return checkTheFirstRow(field) || checkTheThirdColumn(field) || checkSlash(field);
+                case 7:
+                    return checkTheThirdRow(field) || checkTheFirstColumn(field) || checkSlash(field);
+                default:  //case 9:
+                    return checkTheThirdRow(field) || checkTheThirdColumn(field) || checkBackslash(field);
             }
-            drawField();
-            //turn of Player (O)
-            currentTurn = 'O';
-            cellNumber = doHumanTurn(currentTurn, scanner);
+        }
+    }
 
-            isOver = isEndGame(cellNumber);
-
-        } while (!isOver);
-        drawField();
-        if (!isFieldOccupied()) {
-            System.out.println("The winner is " + currentTurn);
-            if (currentTurn == 'O') {
-                System.out.println("Congrats!!!");
-            } else {
-                System.out.println("Don't worry, you can win next time!");
+    protected boolean isFieldOccupied(char[] field) {
+        for (char cell : field) {
+            if (' ' == cell) {
+                return false;
             }
-        } else {
-            System.out.println("It's a draw!");
         }
+        return true;
     }
 
-    private int doComputerTurn(char turn) {
-        System.out.println("Turn of " + turn);
-        int cellNumber = getCellNumberFromComputer();
-        field[cellNumber-1] = turn;
-        return cellNumber;
+    private boolean checkTheFirstRow(char[] field) {
+        return (field[1] == field[0] && field[1] == field[2]);
     }
 
-    private int getCellNumberFromComputer() {
-        int cellNumber;
-        do {
-            cellNumber = 1 + (int) (Math.random() * 9);
-        } while (!isCellValid(cellNumber));
-        return cellNumber;
+    private boolean checkTheSecondRow(char[] field) {
+        return (field[4] == field[5] && field[4] == field[3]);
     }
 
-    private boolean isCellValid(int cellNumber) {
-        if (cellNumber <= 0 || cellNumber > field.length) {
-            return false;
-        }
-        return field[cellNumber-1] == ' ';
+    private boolean checkTheThirdRow(char[] field) {
+        return (field[7] == field[6] && field[7] == field[8]);
+    }
+
+    private boolean checkTheFirstColumn(char[] field) {
+        return (field[3] == field[0] && field[3] == field[6]);
+    }
+
+    private boolean checkTheSecondColumn(char[] field) {
+        return (field[4] == field[1] && field[4] == field[7]);
+    }
+
+    private boolean checkTheThirdColumn(char[] field) {
+        return (field[5] == field[2] && field[5] == field[8]);
+    }
+
+    private boolean checkBackslash(char[] field) {
+        return (field[4] == field[0] && field[4] == field[8]);
+    }
+
+    private boolean checkSlash(char[] field) {
+        return (field[4] == field[2] && field[4] == field[6]);
     }
 }
